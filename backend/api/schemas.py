@@ -6,5 +6,5 @@ class ModelTextInput(BaseModel):
 
 class ModelResponse(BaseModel):
     token_list: list[str]
-    corrected_att_scores: list[list[list[list[float]]]]
+    corrected_att_scores: list[list[list[list[list[float]]]]]
     classifications: list[str]
