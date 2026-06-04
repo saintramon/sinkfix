@@ -9,10 +9,10 @@ router = APIRouter()
 
 @router.post("/analyze")
 async def analyze(input: ModelTextInput):
-    model, tokenizer = load_model(ModelTextInput.model_name)
-    att_weights, token_list = extract_attention(model, tokenizer, ModelTextInput.text)
+    model, tokenizer = load_model(input.model_name)
+    att_weights, token_list = extract_attention(model, tokenizer, input.text)
 
-    sink_mask, normalized = detect_sinks(att_weights, threshold=0.2)
+    sink_mask, normalized = detect_sinks(att_weights, threshold=0.05)
 
     classifications = []
 
@@ -26,4 +26,8 @@ async def analyze(input: ModelTextInput):
         
     corrected_att_weights = redistribute_attention(att_weights, sink_mask, classifications)
 
-    return ModelResponse(token_list, corrected_att_weights, classifications)
+    return ModelResponse(
+        token_list=token_list, 
+        corrected_att_scores=corrected_att_weights.tolist(), 
+        classifications=classifications,
+    )
