@@ -17,15 +17,39 @@ The project is about analysis first, intervention second.
 
 ## Current scope
 
-The repository currently contains the core ML modules for:
+The repository currently contains a working backend prototype for:
 
 - loading a model and tokenizer
 - extracting attention weights
+- extracting per-token value vector norms
 - detecting candidate sinks
-- classifying sinks
+- classifying sinks as beneficial, detrimental, or neutral
 - redistributing attention weights
+- exposing the pipeline through a FastAPI endpoint
 
-The broader product direction is still in progress: a clean API, a usable interface, and a stronger evaluation story.
+The broader product direction is still in progress: a usable interface, better visualization, and a stronger evaluation story.
+
+## Current method
+
+SinkFix currently uses `google-bert/bert-base-uncased` as the main prototype model.
+
+The backend pipeline is:
+
+1. tokenize input text
+2. run the model with attention and hidden-state outputs enabled
+3. average attention across layers and heads
+4. compute normalized attention received by each token
+5. compute value vector norms for each token from the selected BERT layer
+6. classify sink candidates using attention received and value norm
+7. redistribute attention away from detrimental sink tokens
+
+The current classification rule is intentionally simple:
+
+- token index `0` is treated as a beneficial sink candidate
+- high attention received with low value norm is treated as detrimental
+- everything else is neutral
+
+This is a research prototype, not a finished attention-editing method.
 
 ## What this is not
 
@@ -51,14 +75,51 @@ I am using this project to learn:
 
 ## Run locally
 
-The current code is centered on the backend ML modules.
+Install dependencies:
 
-```python
-from backend.ml.utils import load_model, extract_attention
-
-model, tokenizer = load_model("bert-base-uncased")
-attention_weights, token_list = extract_attention(model, tokenizer, "The cat sat on the mat")
+```bash
+pip install -r requirements.txt
 ```
+
+Start the backend:
+
+```bash
+uvicorn backend.api.main:app --reload
+```
+
+Call the analysis endpoint:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"model_name":"google-bert/bert-base-uncased","text":"[MASK] [MASK] [MASK] [MASK] The actual sentence contains no useful semantic content."}'
+```
+
+Run a syntax check:
+
+```bash
+python -m compileall backend
+```
+
+## API response
+
+`POST /api/analyze` returns:
+
+- `token_list`: model tokens
+- `classifications`: one label per token
+- `att_received_scores`: normalized attention received by each token
+- `value_norms`: normalized value vector norm per token
+- `corrected_att_scores`: redistributed attention tensor
+
+The full corrected attention tensor is dense and large. It is kept for inspection and future visualization work.
+
+## Current limitations
+
+- The value-norm extraction is currently BERT-specific.
+- Thresholds are experimental and need evaluation.
+- The project does not yet measure output quality or task-level improvement.
+- The current endpoint loads the model per request, which is acceptable for experimentation but not efficient for production.
+- Autoregressive language models are not supported yet.
 
 ## Documentation
 
