@@ -14,18 +14,6 @@ async def analyze(input: ModelTextInput):
 
     sink_mask, att_received_scores = detect_sinks(att_weights, threshold=0.02)
 
-    for i, token in enumerate(token_list):
-      print(
-          i,
-          token,
-          "sink=",
-          bool(sink_mask[i]),
-          "attention=",
-          float(att_received_scores[i]),
-          "value_norm=",
-          float(value_norms[i]),
-      )
-
     classifications = []
 
     for i in range(len(token_list)):
