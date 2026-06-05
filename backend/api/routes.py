@@ -30,4 +30,6 @@ async def analyze(input: ModelTextInput):
         token_list=token_list, 
         corrected_att_scores=corrected_att_weights.tolist(), 
         classifications=classifications,
+        att_received_scores = att_received_scores.tolist(),
+        value_norms=value_norms.tolist()
     )
