@@ -28,8 +28,9 @@ def extract_attention(model, tokenizer, text):
         layer_idx = 0
         layer_hidden = hidden_states[layer_idx]
 
-        value_vectors = model.encode.layer[layer_idx].attention.self.value(layer_hidden)
+        value_vectors = model.encoder.layer[layer_idx].attention.self.value(layer_hidden)
 
+        value_norms = value_vectors.norm(dim=-1).squeeze(0)
         value_norms = value_norms / value_norms.mean().clamp(min=1e-9)
 
     return attention_weights, token_list, value_norms

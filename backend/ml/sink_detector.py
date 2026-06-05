@@ -8,8 +8,8 @@ def detect_sinks(att_weights: tuple, threshold: float = 0.2):
 
     att_received = avg_attention.sum(dim=1)
 
-    normalized = att_received / att_received.sum(dim=-1, keepdim=True)
+    att_received_scores = att_received / att_received.sum(dim=-1, keepdim=True)
 
-    sink_mask = normalized > threshold
+    sink_mask = att_received_scores > threshold
 
-    return sink_mask.squeeze(), normalized.squeeze()
+    return sink_mask.squeeze(), att_received_scores.squeeze()

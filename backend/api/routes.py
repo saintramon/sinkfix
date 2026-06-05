@@ -10,15 +10,27 @@ router = APIRouter()
 @router.post("/analyze")
 async def analyze(input: ModelTextInput):
     model, tokenizer = load_model(input.model_name)
-    att_weights, token_list = extract_attention(model, tokenizer, input.text)
+    att_weights, token_list, value_norms = extract_attention(model, tokenizer, input.text)
 
-    sink_mask, normalized = detect_sinks(att_weights, threshold=0.05)
+    sink_mask, att_received_scores = detect_sinks(att_weights, threshold=0.02)
+
+    for i, token in enumerate(token_list):
+      print(
+          i,
+          token,
+          "sink=",
+          bool(sink_mask[i]),
+          "attention=",
+          float(att_received_scores[i]),
+          "value_norm=",
+          float(value_norms[i]),
+      )
 
     classifications = []
 
     for i in range(len(token_list)):
         if sink_mask[i]:
-            label = classify_sink(i, normalized, att_weights, 0)
+            label = classify_sink(i, value_norms[i], att_received_scores[i], 0)
         else:
             label = "neutral"
 

@@ -1,8 +1,8 @@
-def classify_sink(token_idx, value_norms, attention_received, layer_depth):
+def classify_sink(token_idx, value_norm, attention_received_score, layer_depth):
     if token_idx == 0 and layer_depth <= 2:
         return "beneficial"
     
-    elif value_norms[token_idx] < 0.01 and attention_received[token_idx] > 0.2:
+    elif attention_received_score > 0.02 and value_norm < 0.95:
         return "detrimental"
     
     return "neutral"
