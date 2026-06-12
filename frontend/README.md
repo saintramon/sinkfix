@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SinkFix Frontend
 
-## Getting Started
+This is the Next.js frontend for SinkFix, an attention-sink explainability tool for transformer models.
 
-First, run the development server:
+The frontend lets a user submit text and inspect the backend's token-level analysis in a readable diagnostic view.
+
+## Current UI
+
+The interface currently supports:
+
+- entering a Hugging Face model name
+- entering text to analyze
+- submitting the input to the FastAPI backend
+- showing loading and error states
+- displaying summary counts for token classifications
+- displaying a token table with attention received, value norm, and classification
+
+## Backend requirement
+
+Start the backend from the repository root before using the frontend:
+
+```bash
+uvicorn backend.api.main:app --reload
+```
+
+The frontend expects the backend at:
+
+```text
+http://localhost:8000
+```
+
+## Run locally
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Checks
 
-## Learn More
+Run linting:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run lint
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Run a production build:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run build
+```
 
-## Deploy on Vercel
+## Product direction
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The frontend should make transformer attention behavior easier to understand. It should not imply that SinkFix retrains or permanently fixes the model.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Near-term improvements should focus on:
+
+- strongest-sink explanations
+- clearer empty/loading/error states
+- screenshots for portfolio review
+- readable handling for long token sequences

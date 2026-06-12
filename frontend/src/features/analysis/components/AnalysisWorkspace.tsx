@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AnalysisForm } from "./AnalysisForm";
+import { AnalysisResult } from "./AnalysisResult";
 import { sendAnalyzeRequest } from "../api/analyzeRequest";
 import type { AnalysisFormValues, AnalyzeResponse } from "../types/analysis";
 
@@ -41,11 +42,7 @@ export function AnalysisWorkspace() {
             ) : null}
  
             {result ? (
-                <pre
-                    className="overflow-auto rounded-md bg-zinc-900 p-4 text-xs text-white"
-                >
-                    {JSON.stringify(result, null, 2)}   
-                </pre>
+                <AnalysisResult result={result} /> 
             ) : null}
         </section>
     );
