@@ -1,16 +1,17 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AnalysisForm } from "./AnalysisForm";
-import { AnalysisResult } from "./AnalysisResult";
 import { sendAnalyzeRequest } from "../api/analyzeRequest";
-import type { AnalysisFormValues, AnalyzeResponse } from "../types/analysis";
+import type { AnalysisFormValues } from "../types/analysis";
 
+const LAST_ANALYSIS_RESULT_KEY = "sinkfix:lastAnalysisResult";
 
 export function AnalysisWorkspace() {
-    const [ isSubmitting, setIsSubmitting ] = useState(false);
-    const [ error, setError] = useState<string | null>(null);
-    const [ result, setResult ] = useState<AnalyzeResponse | null>(null);
+    const router = useRouter();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     async function handleSubmit(values: AnalysisFormValues) {
         setIsSubmitting(true);
@@ -22,35 +23,32 @@ export function AnalysisWorkspace() {
                 text: values.text,
             });
 
-            setResult(response);
+            sessionStorage.setItem(LAST_ANALYSIS_RESULT_KEY, JSON.stringify(response));
+            router.push("/results");
         } catch {
-            setError("Could not analyze the text. Check backend is running");
+            setError("Analysis failed. Make sure the FastAPI backend is running on http://localhost:8000 and the model name is valid.");
         } finally {
             setIsSubmitting(false);
         }
-    };
+    }
 
     return (
-        <section className="space-y-6">
+        <section className="space-y-4">
             <AnalysisForm
                 isSubmitting={isSubmitting}
                 onSubmit={handleSubmit}
             />
  
             {error ? (
-                <p className="text-sm text-red-600">{error}</p>
-            ) : null}
- 
-            {result ? (
-                <AnalysisResult result={result} /> 
+                <div className="rounded-md border border-[#cc0000] bg-[#cc00001a] p-4 text-sm text-[#ffb4a8]">
+                    {error}
+                </div>
             ) : null}
 
             {isSubmitting ? (
-                <p className="text-sm text-zinc-600">Analyzing attention patterns...</p>
-            ) : null}
-
-            {!isSubmitting && !result && !error ? (
-                <p className="text-sm text-zinc-600">Run an analysis to inspect token-level attention behavior.</p>
+                <div className="rounded-md border border-[#2a2a2a] bg-[#0d0e0f] p-4 text-sm text-[#c8c6c5]">
+                    Analyzing attention patterns...
+                </div>
             ) : null}
         </section>
     );
