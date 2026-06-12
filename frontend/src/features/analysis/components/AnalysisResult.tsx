@@ -17,8 +17,16 @@ export function AnalysisResult({ result }: AnalyzeResponseProps) {
         token,
         classification: result.classifications[index],
         attentionReceived: result.att_received_scores[index],
-        valueNorm: result.value_norms[index]
+        valueNorm: result.value_norms[index],
     }));
+
+    const strongestSink = rows.length ? rows.reduce((strongest, row) => {
+        if (row.attentionReceived > strongest.attentionReceived) { 
+            return row;
+        }
+
+        return strongest;
+    }, rows[0]): null; 
 
     const summary = rows.reduce(
         (counts, row) => ({
@@ -60,7 +68,28 @@ export function AnalysisResult({ result }: AnalyzeResponseProps) {
             <p className="text-sm text-zinc-600">
                 Special tokens like [CLS] and [SEP] are included in this prototype analysis.
             </p>
+            {strongestSink ? (
+                <div className="rounded-md border border-zinc-200 bg-zinc-50 p-4">
+                <p className="text-xs font-medium uppercase text-zinc-500">
+                    Main Finding
+                </p>
 
+                <p className="mt-2 text-sm text-zinc-700">
+                    <span className="font-mono font-semibold text-zinc-900">
+                        {strongestSink.token}
+                    </span>{" "}
+                    received{" "}
+                    <span className="font-semibold text-zinc-900">
+                        {(strongestSink.attentionReceived * 100).toFixed(2)}%
+                    </span>{" "}
+                    of normalized attention and was classified as{" "}
+                    <span className="font-semibold text-zinc-900">
+                        {strongestSink.classification}
+                    </span>
+                    .
+                </p>
+                </div>  
+            ) : null}
             <div className="overflow-x-auto rounded-md border border-zinc-200">
                 <table className="w-full text-left text-sm">
                     <thead className="bg-zinc-50 text-zinc-700">
