@@ -26,7 +26,11 @@ export function AnalysisResult({ result }: AnalyzeResponseProps) {
         }
 
         return strongest;
-    }, rows[0]): null; 
+        }, rows[0]): null;
+
+    const topSinks = [...rows]
+        .sort((a, b) => b.attentionReceived - a.attentionReceived)
+        .slice(0, 5);
 
     const summary = rows.reduce(
         (counts, row) => ({
@@ -68,6 +72,7 @@ export function AnalysisResult({ result }: AnalyzeResponseProps) {
             <p className="text-sm text-zinc-600">
                 Special tokens like [CLS] and [SEP] are included in this prototype analysis.
             </p>
+
             {strongestSink ? (
                 <div className="rounded-md border border-zinc-200 bg-zinc-50 p-4">
                 <p className="text-xs font-medium uppercase text-zinc-500">
@@ -89,6 +94,50 @@ export function AnalysisResult({ result }: AnalyzeResponseProps) {
                     .
                 </p>
                 </div>  
+            ) : null}
+
+            {topSinks.length ? (
+                <div className="rounded-md border border-zinc-200 p-4">
+                    <div className="mb-3">
+                        <h3 className="text-sm font-semibold text-zinc-900">
+                            Top Attention Sinks
+                        </h3>
+                        <p className="text-sm text-zinc-600">
+                            Tokens receiving the highest share of normalized attention
+                        </p>
+                    </div>
+
+                    <div className="space-y-2">
+                        {topSinks.map((sink) => (
+                            <div
+                                key={`top-${sink.index}-${sink.token}`}
+                                className="flex items-center justify-between gap-3 rounded-md bg-zinc-50 px-3 py-2"
+                            >
+                                <div className="min-w-0">
+                                    <p className="truncate font-mono text-sm font-semibold text-zinc-900">
+                                        {sink.token}
+                                    </p>
+                                    <p className="text-xs text-zinc-500">
+                                        Index {sink.index}
+                                    </p>
+                                </div>
+
+                                <div className="flex shrink-0 items-center gap-2">
+                                    <span className="text-sm font-semibold text-zinc-900">
+                                        {(sink.attentionReceived * 100).toFixed(2)}%
+                                    </span>
+
+                                    <span
+                                        className={`inline-flex rounded-md px-1 text-xs font-medium capitalize ring-1 ring-inset
+                                        ${classificationStyles[sink.classification]}`}
+                                    >
+                                        {sink.classification}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             ) : null}
             <div className="overflow-x-auto rounded-md border border-zinc-200">
                 <table className="w-full text-left text-sm">

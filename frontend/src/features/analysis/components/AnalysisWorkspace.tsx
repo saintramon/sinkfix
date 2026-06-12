@@ -44,6 +44,14 @@ export function AnalysisWorkspace() {
             {result ? (
                 <AnalysisResult result={result} /> 
             ) : null}
+
+            {isSubmitting ? (
+                <p className="text-sm text-zinc-600">Analyzing attention patterns...</p>
+            ) : null}
+
+            {!isSubmitting && !result && !error ? (
+                <p className="text-sm text-zinc-600">Run an analysis to inspect token-level attention behavior.</p>
+            ) : null}
         </section>
     );
 }
