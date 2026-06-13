@@ -26,7 +26,7 @@ export function AnalysisWorkspace() {
             sessionStorage.setItem(LAST_ANALYSIS_RESULT_KEY, JSON.stringify(response));
             router.push("/results");
         } catch {
-            setError("Analysis failed. Make sure the FastAPI backend is running on http://localhost:8000 and the model name is valid.");
+            setError("Analysis failed. Make sure the FastAPI backend is running and the model name is valid.");
         } finally {
             setIsSubmitting(false);
         }
