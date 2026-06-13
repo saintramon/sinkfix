@@ -1,16 +1,23 @@
 # SinkFix
 
-SinkFix is a small full-stack prototype for inspecting attention sinks in BERT-style transformer models.
+SinkFix is a deployed full-stack app for inspecting attention sinks in BERT-style transformer models.
 
 The project is best described as an attention interpretability tool. It helps answer:
 
 > Which tokens receive unusually concentrated attention, and do those tokens look structural, useful, or suspicious?
 
-Today, SinkFix takes a Hugging Face model name and input text, runs the model with attention and hidden-state outputs enabled, and returns a token-level diagnostic report.
+SinkFix takes a Hugging Face model name and input text, runs the model with attention and hidden-state outputs enabled, and returns a token-level diagnostic report.
+
+## Live App
+
+SinkFix is deployed at:
+
+- https://www.sinkfix.xyz
+- https://sinkfix.xyz
 
 ## Current Status
 
-SinkFix currently works as a local research prototype:
+SinkFix currently works as a deployed attention diagnostics app:
 
 - Backend API built with FastAPI
 - Frontend built with Next.js, React, TypeScript, and Tailwind CSS
@@ -18,7 +25,7 @@ SinkFix currently works as a local research prototype:
 - Analysis designed around BERT-style encoder internals
 - Results shown as a token-level diagnostic table in the frontend
 
-This is not a production explainability platform and it does not explain final model predictions. It exposes and labels internal attention behavior for inspection.
+The app focuses on internal attention behavior. It does not claim to fully explain why a model produced a specific final prediction.
 
 ## What The App Shows
 
@@ -32,9 +39,8 @@ For each input, SinkFix returns:
 - the strongest attention receiver
 - the top attention sinks
 - a full table of token-level diagnostics
-- an experimental corrected attention tensor
 
-Special tokens such as `[CLS]` and `[SEP]` are included in the report. That is intentional in the current prototype because structural-token behavior is part of what the project is inspecting.
+Special tokens such as `[CLS]` and `[SEP]` are included in the report. That is intentional in the current version because structural-token behavior is part of what the project is inspecting.
 
 ## Backend Method
 
@@ -48,7 +54,6 @@ The current backend pipeline is:
 6. Compute normalized value-vector norms from BERT layer `0`.
 7. Detect tokens above the attention threshold.
 8. Classify detected sink candidates.
-9. Generate an experimental attention tensor with detrimental sink attention suppressed and renormalized.
 
 The classification rule is intentionally simple:
 
@@ -56,22 +61,15 @@ The classification rule is intentionally simple:
 - high attention received with lower value norm is classified as `detrimental`
 - everything else is classified as `neutral`
 
-The frontend currently displays the token-level diagnostics. The corrected attention tensor is returned by the API but is not visualized in detail.
-
-## About The Correction Tensor
-
-SinkFix includes an experimental attention redistribution step. When a detected sink is classified as `detrimental`, the backend suppresses attention to that token in a copied attention tensor and renormalizes the remaining attention.
-
-This is diagnostic output only. The tensor is not fed back through the model, and the project does not currently measure whether this changes or improves downstream task behavior.
+The frontend displays the token-level diagnostics as summary cards, top sinks, and a full results table.
 
 ## What This Is Not
 
 - not a training or fine-tuning pipeline
 - not a model repair system
-- not a claim that attention editing improves model quality
-- not a production ML monitoring system
+- not a claim that attention diagnostics fully explain model decisions
+- not an ML monitoring system
 - not currently designed for autoregressive language models
-- not a complete explanation of why a model produced a specific answer
 
 ## Tech Stack
 
@@ -101,7 +99,6 @@ backend/
     utils.py          model loading and attention extraction
     sink_detector.py  attention sink detection
     classifier.py     sink classification rule
-    optimizer.py      experimental attention redistribution
 
 frontend/
   app/                 Next.js routes
@@ -155,7 +152,7 @@ http://localhost:8000
 Allowed frontend origins can be configured with:
 
 ```bash
-FRONTEND_ORIGINS=http://localhost:3000
+FRONTEND_ORIGINS=https://www.sinkfix.xyz,https://sinkfix.xyz,http://localhost:3000
 ```
 
 ## API Usage
@@ -183,7 +180,6 @@ Response fields:
 - `classifications`: one label per token
 - `att_received_scores`: normalized attention received by each token
 - `value_norms`: normalized value-vector norm per token
-- `corrected_att_scores`: experimental redistributed attention tensor
 
 ## Frontend Flow
 
@@ -225,9 +221,7 @@ npm run build
 
 - The value-vector extraction assumes BERT internals at `model.encoder.layer[...]`.
 - The model is loaded on every request, which is slow and inefficient.
-- Classification thresholds are experimental and not validated.
-- The correction tensor is returned but not evaluated against downstream model behavior.
-- The response can be very large because `corrected_att_scores` contains a dense attention tensor.
+- Classification thresholds are heuristic and may need validation for broader model coverage.
 - The frontend only keeps the latest result in browser `sessionStorage`.
 - Autoregressive language models are not supported.
 - The project currently inspects attention behavior, not full causal explanations of model predictions.
