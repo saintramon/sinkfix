@@ -1,0 +1,55 @@
+name: Deploy Backend to Hugging Face Space
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - "requirements.txt"
+      - ".github/workflows/deploy-hf-space.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build Space deployment directory
+        run: |
+          rm -rf space
+          mkdir -p space
+
+          cp -r backend space/backend
+          cp requirements.txt space/requirements.txt
+          cp backend/Dockerfile space/Dockerfile
+
+          cat > space/README.md <<'EOF'
+          ---
+          title: SinkFix Backend
+          sdk: docker
+          app_port: 8000
+          ---
+
+          # SinkFix Backend
+
+          FastAPI backend for SinkFix attention-sink analysis.
+          EOF
+
+      - name: Push to Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          cd space
+          git init
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "Deploy SinkFix backend"
+
+          git branch -M main
+          git remote add origin https://saintramon:${HF_TOKEN}@huggingface.co/spaces/saintramon/sinkfix-backend
+          git push --force origin main
