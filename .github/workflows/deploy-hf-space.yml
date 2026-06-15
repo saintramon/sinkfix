@@ -43,6 +43,8 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          test -n "$HF_TOKEN"
+
           cd space
           git init
           git config user.name "github-actions"
@@ -51,5 +53,8 @@ jobs:
           git commit -m "Deploy SinkFix backend"
 
           git branch -M main
-          git remote add origin https://saintramon:${HF_TOKEN}@huggingface.co/spaces/saintramon/sinkfix-backend
+          git remote add origin https://huggingface.co/spaces/saintramon/sinkfix-backend
+          git config credential.helper store
+          echo "https://saintramon:${HF_TOKEN}@huggingface.co" > ~/.git-credentials
+
           git push --force origin main
