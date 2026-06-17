@@ -33,4 +33,7 @@ def extract_attention(model, tokenizer, text):
         value_norms = value_vectors.norm(dim=-1).squeeze(0)
         value_norms = value_norms / value_norms.mean().clamp(min=1e-9)
 
-    return attention_weights, token_list, value_norms
+        stacked_attention = torch.stack(attention_weights)
+        attention_matrix = stacked_attention.mean(dim=(0,1,2))
+
+    return attention_weights, token_list, value_norms, attention_matrix

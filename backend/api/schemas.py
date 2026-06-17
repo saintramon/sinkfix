@@ -10,3 +10,4 @@ class ModelResponse(BaseModel):
     classifications: list[str]
     att_received_scores: list[float]
     value_norms: list[float]
+    att_matrix: list[list[float]]
