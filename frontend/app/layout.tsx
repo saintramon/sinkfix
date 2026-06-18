@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "@fontsource/jetbrains-mono/400.css";
 import "@fontsource/jetbrains-mono/500.css";
 import "@fontsource/jetbrains-mono/600.css";
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
                 {children}
                 <Analytics />
+                <SpeedInsights />
             </body>
         </html>
     );
