@@ -1,4 +1,5 @@
 import { AnalyzeResponse, SinkClassification, TokenAnalysisRow } from "../types/analysis";
+import { AttentionHeatmap } from "./AttentionHeatmap";
 
 
 type AnalyzeResponseProps = {
@@ -146,6 +147,9 @@ export function AnalysisResult({ result }: AnalyzeResponseProps) {
                     </div>
                 </div>
             ) : null}
+
+            <AttentionHeatmap tokens={result.token_list} matrix={result.att_matrix} />
+
             <div className="overflow-x-auto rounded-md border border-[#2a2a2a]">
                 <table className="w-full text-left text-sm">
                     <thead className="bg-[#121414] font-mono text-[#c8c6c5]">

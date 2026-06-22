@@ -23,9 +23,18 @@ export function AnalysisWorkspace() {
                 text: values.text,
             });
 
-            sessionStorage.setItem(LAST_ANALYSIS_RESULT_KEY, JSON.stringify(response));
+            const resultForDisplay = {
+                token_list: response.token_list,
+                classifications: response.classifications,
+                att_received_scores: response.att_received_scores,
+                value_norms: response.value_norms,
+                att_matrix: response.att_matrix,
+            }
+
+            sessionStorage.setItem(LAST_ANALYSIS_RESULT_KEY, JSON.stringify(resultForDisplay));
             router.push("/results");
-        } catch {
+        } catch (error){
+            console.error("Analysis failed: ", error)
             setError("Analysis failed. Make sure the FastAPI backend is running and the model name is valid.");
         } finally {
             setIsSubmitting(false);

@@ -12,10 +12,11 @@ export type AnalyzeRequest = {
 
 export type AnalyzeResponse = {
   token_list: string[];
-  corrected_att_scores: number[][][][][];
+  corrected_att_scores?: number[][][][][];
   classifications: SinkClassification[];
   att_received_scores: number[];
   value_norms: number[];
+  att_matrix: number[][];
 };
 
 export type TokenAnalysisRow = {
