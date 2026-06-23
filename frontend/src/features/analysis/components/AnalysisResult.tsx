@@ -12,6 +12,28 @@ const classificationStyles: Record<SinkClassification, string> = {
     detrimental: "bg-[#cc00001a] text-[#ffb4a8] ring-[#cc000033]",
 };
 
+function escapeCsvCell(value: string | number) {
+    const stringValue = String(value)
+    return `"${stringValue.replaceAll('"', '""')}"`;
+}
+
+function downloadTextFile(fileName: string, content: string, mimeType: string) {
+    const blob = new Blob(
+        [content],
+        { type: mimeType }
+    );
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = fileName;
+    link.click()
+
+    URL.revokeObjectURL(url);
+}
+
 export function AnalysisResult({ result }: AnalyzeResponseProps) { 
     const rows: TokenAnalysisRow[] = result.token_list.map((token, index) => ({
         index,
@@ -47,15 +69,70 @@ export function AnalysisResult({ result }: AnalyzeResponseProps) {
         } satisfies Record<SinkClassification, number>,
     );
 
+    function handleJsonExport() {
+        downloadTextFile(
+            "sinkfix-analysis.json",
+            JSON.stringify(result, null, 2),
+            "application/json",
+        );
+    }
+
+    function handleCsvExport() {
+        const header = [
+            "index",
+            "token",
+            "classification",
+            "attention_received",
+            "value_norm",
+        ];
+
+        const csvRows = rows.map((row) => [
+            row.index,
+            row.token,
+            row.classification,
+            row.attentionReceived,
+            row.valueNorm,
+        ]);
+
+        const  csvContent = [header, ...csvRows]
+            .map((row) => row.map(escapeCsvCell).join(","))
+            .join("\n");
+        
+        downloadTextFile(
+            "sinkfix-token-report.csv",
+            csvContent,
+            "text/csv",
+        );
+    }
+
     return (
         <section className="space-y-4 rounded-md border border-[#2a2a2a] bg-[#0d0e0f] p-5">
-            <div className="flex flex-col gap-1 border-b border-[#2a2a2a] pb-4">
-                <p className="font-mono text-xs font-semibold uppercase tracking-[0.22em] text-[#cc0000]">
-                    Diagnostic report
-                </p>
-                <h2 className="text-xl font-semibold text-[#e3e2e2]">
-                    Analysis Result
-                </h2>
+            <div className="flex flex-col gap-1 border-b border-[#2a2a2a] pb-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-1">
+                    <p className="font-mono text-xs font-semibold uppercase tracking-[0.22em] text-[#cc0000]">
+                        Diagnostic report
+                    </p>
+                    <h2 className="text-xl font-semibold text-[#e3e2e2]">
+                        Analysis Result
+                    </h2>
+                </div>
+                
+                <div className="flex gap-2">
+                    <button
+                        type="button"
+                        onClick={handleJsonExport}
+                        className="rounded-md border border-[#343535] px-3 py-2 text-sm font-medium text-[#e3e2e2] hover:bg-[#1f2020]"
+                    >
+                        Export JSON
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleCsvExport}
+                        className="rounded-md border border-[#343535] px-3 py-2 text-sm font-medium text-[#e3e2e2] hover:bg-[#1f2020]"
+                    >
+                        Export CSV
+                    </button>
+                </div>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-4">
