@@ -13,7 +13,9 @@ The interface currently supports:
 - submitting the input to the FastAPI backend
 - showing loading and error states
 - displaying summary counts for token classifications
+- displaying an averaged attention heatmap
 - displaying a token table with attention received, value norm, and classification
+- exporting the displayed result as JSON or CSV
 
 ## Backend requirement
 
@@ -69,6 +71,8 @@ The frontend should make transformer attention behavior easier to understand. It
 
 Near-term improvements should focus on:
 
+- example inputs for guided demos
+- curated compatible BERT model selection
 - strongest-sink explanations
 - clearer empty/loading/error states
 - screenshots for portfolio review
