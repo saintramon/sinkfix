@@ -24,6 +24,8 @@ SinkFix currently works as a deployed attention diagnostics app:
 - Default model input set to `google-bert/bert-base-uncased`
 - Analysis designed around BERT-style encoder internals
 - Results shown as a token-level diagnostic table in the frontend
+- Averaged attention heatmap shown on the results page
+- JSON and CSV export available from the displayed analysis result
 
 The app focuses on internal attention behavior. It does not claim to fully explain why a model produced a specific final prediction.
 
@@ -191,7 +193,9 @@ The results page reads that stored response and renders:
 - classification counts
 - strongest attention receiver
 - top five attention sinks
+- averaged attention heatmap
 - full token table
+- JSON and CSV export actions
 
 Refreshing or opening `/results` without a stored response shows an empty-state message.
 

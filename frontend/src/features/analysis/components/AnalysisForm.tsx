@@ -6,6 +6,29 @@ type AnalysisFormProps = {
     onSubmit: (values: AnalysisFormValues) => void;
 };
 
+const EXAMPLE_INPUTS = [
+    {
+        title: "Normal Sentence",
+        description: "A simple baseline sentence for a quick diagnostic run.",
+        text: "To get something you never had, you need to do something you never did.",
+    },
+    {
+        title: "Repetition",
+        description: "Shows how repeated words can affect attention patterns.",
+        text: "Very very very small changes can create very different attention patterns.",
+    },
+    {
+        title: "Classification-style",
+        description: "Useful for observing structural-token behavior.",
+        text: "Classification tasks often rely on the first token representation.",
+    },
+    {
+        title: "Mixed Punctuation",
+        description: "Includes punctuation and varied token boundaries.",
+        text: "Sinkfix inspects attention patterns: tokens, punctuation, and repeated phrases can behave differently."
+    }
+];
+
 export function AnalysisForm({ isSubmitting, onSubmit }: AnalysisFormProps) {
     const [modelName, setModelName] = useState("google-bert/bert-base-uncased");
     const [text, setText] = useState("");
@@ -63,6 +86,38 @@ export function AnalysisForm({ isSubmitting, onSubmit }: AnalysisFormProps) {
                     onChange={(event) => setModelName(event.target.value)}
                     className="w-full rounded-md border border-[#343535] bg-[#121414] px-3 py-2 font-mono text-sm text-[#e3e2e2] outline-none transition focus:border-[#cc0000] focus:ring-2 focus:ring-[#cc000033] disabled:cursor-not-allowed disabled:opacity-60"
                 />
+            </div>
+            <div className="space-y-3">
+                <div className="space-y-1">
+                    <h3 className="font-mono text-sm font-semibold text-[#e8bdb6]">
+                        Try an example
+                    </h3>
+                    <p className="text-xs text-[#c8c6c5]">
+                        Load a guided input, then edit it before running analysis.
+                    </p>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                    {EXAMPLE_INPUTS.map((example) => (
+                        <button
+                            key={example.title}
+                            type="button"
+                            disabled={isSubmitting}
+                            onClick={() => {
+                                setText(example.text);
+                                setError(null);
+                            }}
+                            className="rounded-md border border-[#343535] bg-[#121414] p-3 text-left transition hover:border-[#cc0000] hover:bg-[#1a1111] disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            <span className="block font-mono text-sm font-semibold text-[#e3e2e2]">
+                                {example.title}
+                            </span>
+                            <span className="mt-1 block text-xs text-[#c8c6c5]">
+                                {example.description}
+                            </span>
+                        </button>
+                    ))}
+                </div>
             </div>
             <div className="space-y-2">
                 <label 
